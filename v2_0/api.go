@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/url"
 	//"regexp"
-	"github.com/Pursuit92/openstack/core"
+	"github.com/Pursuit92/openstack-core"
 )
 
 var (
@@ -56,16 +56,6 @@ func (ic *IdentityClient) Authenticate() error {
 		authInfo = Auth{PasswordCredentials: ic.passwordCredentials}
 	}
 
-	if ic.tenantName == "" && ic.tenantId == "" {
-		return ErrNoTenant
-	}
-
-	if ic.tenantId != "" {
-		authInfo.TenantId = ic.tenantId
-	} else {
-		authInfo.TenantName = ic.tenantName
-	}
-
 	resp := &tokensResponse{}
 	err := core.OsRequest("POST", ic.AuthUrl+"/tokens", tokensRequest{&authInfo}, resp, "")
 	if err != nil {
@@ -98,4 +88,13 @@ func (ic *IdentityClient) AuthedReq(method, url string, data, resp interface{}) 
 	}
 
 	return core.OsRequest(method, url, data, resp, ic.Access.Token.Id)
+}
+
+func (ic *IdentityClient) Tenants() ([]*Tenant,error) {
+	resp := make(map[string][]*Tenant)
+	err := ic.AuthedReq("GET",ic.AuthUrl + "/tenants",nil,&resp)
+	if err != nil {
+		return nil,err
+	}
+	return resp["tenants"],nil
 }
