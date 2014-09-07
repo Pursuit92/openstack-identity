@@ -56,6 +56,14 @@ func (ic *IdentityClient) Authenticate() error {
 		authInfo = Auth{PasswordCredentials: ic.passwordCredentials}
 	}
 
+	if ic.tenantName != "" {
+		authInfo.TenantName = ic.tenantName
+	}
+
+	if ic.tenantId != "" {
+		authInfo.TenantId = ic.tenantId
+	}
+
 	resp := &tokensResponse{}
 	err := core.OsRequest("POST", ic.AuthUrl+"/tokens", tokensRequest{&authInfo}, resp, "")
 	if err != nil {
@@ -68,6 +76,10 @@ func (ic *IdentityClient) Authenticate() error {
 
 func (ic *IdentityClient) PasswordAuth(user, pass string) {
 	ic.passwordCredentials = &PasswordCredentials{user, pass}
+}
+
+func (ic *IdentityClient) Username() string {
+	return ic.passwordCredentials.Username
 }
 
 func (ic *IdentityClient) TokenAuth(tokenStr string) {
