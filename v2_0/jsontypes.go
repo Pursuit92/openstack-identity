@@ -1,4 +1,4 @@
-package identity
+package keytsone
 
 type PasswordCredentials struct {
 	Username string `json:"username,omitempty"`
